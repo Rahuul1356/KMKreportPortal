@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sau. KMK Madhyamik Vidyalaya Nandgaon – Report Card Portal 2025</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f8fc;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: #fff;
+      margin-top: 60px;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    img.logo {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+    h2 {
+      color: #0d47a1;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background: #1976d2;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0d47a1;
+    }
+    .result {
+      margin-top: 20px;
+      display: none;
+    }
+    a.report-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #4caf50;
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    a.report-btn:hover {
+      background: #388e3c;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img class="logo" src="https://i.ibb.co/Fq41C7FH/logo.png" alt="School Logo">
+    <h2>Sau. KMK Madhyamik Vidyalaya Nandgaon<br>Report Card Portal 2025</h2>
+
+    <div id="loginForm">
+      <input type="text" id="username" placeholder="Enter Student Name" required>
+      <input type="text" id="password" placeholder="Enter Roll Number" required>
+      <button onclick="login()">Login</button>
+      <div id="error" class="error"></div>
+    </div>
+
+    <div id="result" class="result">
+      <h3 id="studentName"></h3>
+      <a id="reportLink" class="report-btn" target="_blank">View Report Card</a>
+    </div>
+  </div>
+
+  <script>
+    async function fetchData() {
+      const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSIRBOkwaw2Hph-cfn91jdd4FJdDYmiA9ZBjWu8MCOep6_Q2_q69JGplXqce_kTjxL2QL1k-wOhjOXt/pub?output=csv';
+      const response = await fetch(url);
+      const data = await response.text();
+      const rows = data.split('\n').slice(1);
+      return rows.map(row => {
+        const [StudentName, RollNumber, ReportLink] = row.split(',');
+        return { StudentName: StudentName?.trim(), RollNumber: RollNumber?.trim(), ReportLink: ReportLink?.trim() };
+      });
+    }
+
+    async function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const errorDiv = document.getElementById('error');
+      const resultDiv = document.getElementById('result');
+
+      errorDiv.textContent = '';
+      resultDiv.style.display = 'none';
+
+      if (!username || !password) {
+        errorDiv.textContent = 'Please enter both fields.';
+        return;
+      }
+
+      const data = await fetchData();
+      const student = data.find(row => 
+        row.StudentName.toLowerCase() === username.toLowerCase() && 
+        row.RollNumber.toLowerCase() === password.toLowerCase()
+      );
+
+      if (student) {
+        document.getElementById('studentName').textContent = 'Welcome, ' + student.StudentName + '!';
+        document.getElementById('reportLink').href = student.ReportLink;
+        resultDiv.style.display = 'block';
+        document.getElementById('loginForm').style.display = 'none';
+      } else {
+        errorDiv.textContent = 'Invalid Student Name or Roll Number.';
+      }
+    }
+  </script>
+</body>
+</html>
